@@ -1,113 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Currency Converter</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-900 flex flex-col items-center p-6">
+import streamlit as st
+import requests
+import streamlit.components.v1 as components
 
-  <h1 class="text-2xl font-bold mb-6">Currency Converter</h1>
+st.set_page_config(page_title="Currency Converter", layout="centered")
 
-  <!-- Conversor principal -->
-  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-2xl">
-    <div class="grid grid-cols-2 gap-4">
-      
-      <!-- From -->
-      <div>
-        <label for="fromCurrency" class="block text-sm font-medium text-gray-700">From</label>
-        <select id="fromCurrency" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg">
-          <option value="USD">USD</option>
-          <option value="ARS">ARS</option>
-          <option value="EUR">EUR</option>
-          <option value="BRL">BRL</option>
-        </select>
-        <input type="number" id="fromAmount" placeholder="Enter amount" class="mt-2 block w-full p-3 border border-gray-300 rounded-lg">
-      </div>
+st.markdown("<h1 style='text-align: center;'>Currency Converter</h1>", unsafe_allow_html=True)
 
-      <!-- To -->
-      <div>
-        <label for="toCurrency" class="block text-sm font-medium text-gray-700">To</label>
-        <select id="toCurrency" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg">
-          <option value="ARS">ARS</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="BRL">BRL</option>
-        </select>
-        <input type="text" id="toAmount" disabled class="mt-2 block w-full p-3 border border-gray-300 rounded-lg bg-gray-100 font-semibold">
-      </div>
-    </div>
-  </div>
+# Monedas disponibles
+currencies = ["USD", "ARS", "EUR", "BRL"]
 
-  <!-- Tablas de referencia -->
-  <div id="referenceTables" class="mt-8 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+col1, col2 = st.columns(2)
 
-  <script>
-    const fromCurrency = document.getElementById("fromCurrency");
-    const toCurrency = document.getElementById("toCurrency");
-    const fromAmount = document.getElementById("fromAmount");
-    const toAmount = document.getElementById("toAmount");
-    const referenceTables = document.getElementById("referenceTables");
+with col1:
+    from_currency = st.selectbox("From", currencies)
+    from_amount = st.number_input("Amount", min_value=0.0, value=1.0, step=1.0)
 
-    async function convertCurrency() {
-      const from = fromCurrency.value;
-      const to = toCurrency.value;
-      const amount = parseFloat(fromAmount.value) || 0;
+with col2:
+    to_currency = st.selectbox("To", currencies)
 
-      const res = await fetch(`https://api.exchangerate.host/latest?base=${from}&symbols=${to}`);
-      const data = await res.json();
-      const rate = data.rates[to];
+# Llamada a la API para obtener la tasa
+def get_rate(from_curr, to_curr):
+    url = f"https://api.exchangerate.host/latest?base={from_curr}&symbols={to_curr}"
+    res = requests.get(url)
+    data = res.json()
+    return data["rates"][to_curr]
 
-      toAmount.value = (amount * rate).toFixed(2);
+rate = get_rate(from_currency, to_currency)
+converted_amount = round(from_amount * rate, 2)
 
-      updateTables(from, to, rate);
-    }
+st.markdown(f"<h2 style='text-align: center;'>{from_amount} {from_currency} = {converted_amount} {to_currency}</h2>", unsafe_allow_html=True)
 
-    function updateTables(from, to, rate) {
-      const steps = [1, 5, 10, 25, 50, 100, 500, 1000, 5000, 10000];
+# Tabla de referencia
+steps = [1, 5, 10, 25, 50, 100, 500, 1000, 5000, 10000]
+table_html = "<div style='display:flex;justify-content:center;gap:30px;margin-top:20px;'>"
 
-      let leftTable = `
-        <div class="bg-white shadow rounded-2xl p-4">
-          <h2 class="text-lg font-bold mb-3">${from} → ${to}</h2>
-          <table class="w-full text-sm">
-            <tbody>
-              ${steps.map(val => `
-                <tr class="border-b">
-                  <td class="py-2 font-semibold">${val} ${from}</td>
-                  <td class="py-2">${(val * rate).toFixed(2)} ${to}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>`;
+# From -> To
+table_html += "<table border='1' style='border-collapse:collapse;padding:5px;'>"
+table_html += f"<tr><th colspan='2'>{from_currency} → {to_currency}</th></tr>"
+for s in steps:
+    table_html += f"<tr><td style='padding:5px;'>{s}</td><td style='padding:5px;'>{round(s*rate,2)}</td></tr>"
+table_html += "</table>"
 
-      let rightTable = `
-        <div class="bg-white shadow rounded-2xl p-4">
-          <h2 class="text-lg font-bold mb-3">${to} → ${from}</h2>
-          <table class="w-full text-sm">
-            <tbody>
-              ${steps.map(val => `
-                <tr class="border-b">
-                  <td class="py-2 font-semibold">${val} ${to}</td>
-                  <td class="py-2">${(val / rate).toFixed(2)} ${from}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>`;
+# To -> From
+table_html += "<table border='1' style='border-collapse:collapse;padding:5px;'>"
+table_html += f"<tr><th colspan='2'>{to_currency} → {from_currency}</th></tr>"
+for s in steps:
+    table_html += f"<tr><td style='padding:5px;'>{s}</td><td style='padding:5px;'>{round(s/rate,2)}</td></tr>"
+table_html += "</table>"
 
-      referenceTables.innerHTML = leftTable + rightTable;
-    }
+table_html += "</div>"
 
-    fromCurrency.addEventListener("change", convertCurrency);
-    toCurrency.addEventListener("change", convertCurrency);
-    fromAmount.addEventListener("input", convertCurrency);
-
-    // Init
-    convertCurrency();
-  </script>
-</body>
-</html>
-
+components.html(table_html, height=400)
 
