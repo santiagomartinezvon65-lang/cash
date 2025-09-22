@@ -1,67 +1,113 @@
-import streamlit as st
-import requests
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currency Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 flex flex-col items-center p-6">
 
-# Page setup
-st.set_page_config(page_title="Currency Converter", layout="centered")
+  <h1 class="text-2xl font-bold mb-6">Currency Converter</h1>
 
-# Title
-st.markdown(
-    """
-    <h1 style='text-align: center; color: #2E4053;'>Currency Converter</h1>
-    <p style='text-align: center; color: #566573; font-size:16px;'>Real-time currency conversion</p>
-    <br>
-    """,
-    unsafe_allow_html=True
-)
+  <!-- Conversor principal -->
+  <div class="bg-white shadow-md rounded-2xl p-6 w-full max-w-2xl">
+    <div class="grid grid-cols-2 gap-4">
+      
+      <!-- From -->
+      <div>
+        <label for="fromCurrency" class="block text-sm font-medium text-gray-700">From</label>
+        <select id="fromCurrency" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg">
+          <option value="USD">USD</option>
+          <option value="ARS">ARS</option>
+          <option value="EUR">EUR</option>
+          <option value="BRL">BRL</option>
+        </select>
+        <input type="number" id="fromAmount" placeholder="Enter amount" class="mt-2 block w-full p-3 border border-gray-300 rounded-lg">
+      </div>
 
-# Available currencies
-currencies = {
-    "USD": "US Dollar",
-    "EUR": "Euro",
-    "GBP": "British Pound",
-    "ARS": "Argentine Peso",
-    "JPY": "Japanese Yen",
-    "BRL": "Brazilian Real"
-}
+      <!-- To -->
+      <div>
+        <label for="toCurrency" class="block text-sm font-medium text-gray-700">To</label>
+        <select id="toCurrency" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg">
+          <option value="ARS">ARS</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="BRL">BRL</option>
+        </select>
+        <input type="text" id="toAmount" disabled class="mt-2 block w-full p-3 border border-gray-300 rounded-lg bg-gray-100 font-semibold">
+      </div>
+    </div>
+  </div>
 
-# API to get exchange rates
-url = "https://open.er-api.com/v6/latest/USD"
+  <!-- Tablas de referencia -->
+  <div id="referenceTables" class="mt-8 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6"></div>
 
-try:
-    data = requests.get(url).json()
-    rates = data["rates"]
+  <script>
+    const fromCurrency = document.getElementById("fromCurrency");
+    const toCurrency = document.getElementById("toCurrency");
+    const fromAmount = document.getElementById("fromAmount");
+    const toAmount = document.getElementById("toAmount");
+    const referenceTables = document.getElementById("referenceTables");
 
-    st.markdown("### Enter amount and select currencies")
+    async function convertCurrency() {
+      const from = fromCurrency.value;
+      const to = toCurrency.value;
+      const amount = parseFloat(fromAmount.value) || 0;
 
-    col1, col2 = st.columns(2)
+      const res = await fetch(`https://api.exchangerate.host/latest?base=${from}&symbols=${to}`);
+      const data = await res.json();
+      const rate = data.rates[to];
 
-    with col1:
-        st.markdown("<h4 style='color:#1C2833;'>From</h4>", unsafe_allow_html=True)
-        from_currency = st.selectbox("From currency", list(currencies.keys()), index=3, label_visibility="collapsed")
-        amount = st.number_input(f"Amount in {from_currency}", min_value=0.0, step=10.0)
+      toAmount.value = (amount * rate).toFixed(2);
 
-    with col2:
-        st.markdown("<h4 style='color:#1C2833;'>To</h4>", unsafe_allow_html=True)
-        to_currency = st.selectbox("To currency", list(currencies.keys()), index=0, label_visibility="collapsed")
+      updateTables(from, to, rate);
+    }
 
-        st.markdown("<br>", unsafe_allow_html=True)  # spacing
+    function updateTables(from, to, rate) {
+      const steps = [1, 5, 10, 25, 50, 100, 500, 1000, 5000, 10000];
 
-        if amount > 0:
-            # Convert to USD first, then to target
-            usd_amount = amount / rates[from_currency]
-            result = usd_amount * rates[to_currency]
+      let leftTable = `
+        <div class="bg-white shadow rounded-2xl p-4">
+          <h2 class="text-lg font-bold mb-3">${from} → ${to}</h2>
+          <table class="w-full text-sm">
+            <tbody>
+              ${steps.map(val => `
+                <tr class="border-b">
+                  <td class="py-2 font-semibold">${val} ${from}</td>
+                  <td class="py-2">${(val * rate).toFixed(2)} ${to}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>`;
 
-            st.markdown(
-                f"""
-                <div style='background-color:#F8F9F9; padding:20px; border-radius:8px; text-align:center; border:1px solid #D5D8DC;'>
-                    <h2 style='color:#2E4053; margin:0;'>{result:,.2f} {to_currency}</h2>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+      let rightTable = `
+        <div class="bg-white shadow rounded-2xl p-4">
+          <h2 class="text-lg font-bold mb-3">${to} → ${from}</h2>
+          <table class="w-full text-sm">
+            <tbody>
+              ${steps.map(val => `
+                <tr class="border-b">
+                  <td class="py-2 font-semibold">${val} ${to}</td>
+                  <td class="py-2">${(val / rate).toFixed(2)} ${from}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>`;
 
-    st.caption("Rates provided by open.er-api.com")
+      referenceTables.innerHTML = leftTable + rightTable;
+    }
 
-except Exception:
-    st.error("Error: Could not fetch exchange rates. Try again later.")
+    fromCurrency.addEventListener("change", convertCurrency);
+    toCurrency.addEventListener("change", convertCurrency);
+    fromAmount.addEventListener("input", convertCurrency);
+
+    // Init
+    convertCurrency();
+  </script>
+</body>
+</html>
+
 
