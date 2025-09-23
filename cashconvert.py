@@ -45,33 +45,37 @@ try:
             key="from_amount",
             help="Enter the amount to convert"
         )
-        # Styled box for amount input (mismo estilo que resultado)
-        st.markdown(
-            f"""
-            <div style='background-color:#F8F9F9; padding:20px; border-radius:12px; text-align:center; border:1px solid #D5D8DC; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-top:10px;'>
-                <h3 style='margin:0; color:#2E4053; font-weight:500;'>{amount:,.2f} {from_currency}</h3>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
 
     # Input: To
     with col2:
         st.markdown("<h4 style='color:#1C2833;'>To</h4>", unsafe_allow_html=True)
         to_currency = st.selectbox("To currency", list(currencies.keys()), index=0, label_visibility="collapsed")
 
-        st.markdown("<br>", unsafe_allow_html=True)  # spacing
+    st.markdown("<br>", unsafe_allow_html=True)  # spacing
 
-        if amount > 0:
-            # Convert to USD first, then to target
-            usd_amount = amount / rates[from_currency]
-            result = usd_amount * rates[to_currency]
+    if amount > 0:
+        # Convert to USD first, then to target
+        usd_amount = amount / rates[from_currency]
+        result = usd_amount * rates[to_currency]
 
-            # Styled box for result (igual al de amount)
+        # Mostrar ambas cajas al lado (2 columnas iguales)
+        col_amount, col_result = st.columns(2)
+
+        with col_amount:
             st.markdown(
                 f"""
                 <div style='background-color:#F8F9F9; padding:20px; border-radius:12px; text-align:center; border:1px solid #D5D8DC; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>
-                    <h2 style='color:#2E4053; margin:0;'>{result:,.2f} {to_currency}</h2>
+                    <h3 style='margin:0; color:#2E4053; font-weight:500;'>{amount:,.2f} {from_currency}</h3>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with col_result:
+            st.markdown(
+                f"""
+                <div style='background-color:#F8F9F9; padding:20px; border-radius:12px; text-align:center; border:1px solid #D5D8DC; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>
+                    <h3 style='margin:0; color:#2E4053; font-weight:500;'>{result:,.2f} {to_currency}</h3>
                 </div>
                 """,
                 unsafe_allow_html=True
