@@ -5,17 +5,90 @@ from datetime import datetime
 # Page setup
 st.set_page_config(page_title="Currency Converter", layout="centered")
 
-# Title
-st.markdown(
-    """
-    <h1 style='text-align: center; color: #1F618D;'>Currency Converter</h1>
-    <p style='text-align: center; color: #566573; font-size:16px;'>Real-time currency conversion</p>
-    <br>
-    """,
-    unsafe_allow_html=True
-)
+# Custom CSS
+st.markdown("""
+    <style>
+        body {
+            background-color: #F8F9F9;
+        }
+        .main-title {
+            text-align: center;
+            color: #1F618D;
+            margin-bottom: 0;
+        }
+        .subtitle {
+            text-align: center;
+            color: #566573;
+            font-size: 16px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+        .update-time {
+            text-align: center;
+            color: #7B7D7D;
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+        .result-box {
+            background-color: #EAF2F8;
+            padding: 25px;
+            border-radius: 14px;
+            text-align: center;
+            border: 1px solid #D5D8DC;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+            max-width: 400px;
+            margin: auto;
+        }
+        .result-value {
+            color: #1F618D;
+            font-weight: 600;
+            margin: 0;
+            font-size: 28px;
+        }
+        .result-label {
+            text-align: center;
+            color: #566573;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .ref-tables {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .ref-card {
+            background: #D6EAF8;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            min-width: 220px;
+        }
+        .ref-card h4 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1F618D;
+        }
+        .ref-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .ref-card td {
+            padding: 6px;
+            font-size: 13px;
+        }
+        .ref-card tr {
+            border-bottom: 1px solid #AED6F1;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-# Currencies with emoji flags and symbols
+# Title
+st.markdown("<h1 class='main-title'>Currency Converter</h1>", unsafe_allow_html=True)
+st.markdown("<p class='subtitle'>Real-time currency conversion</p>", unsafe_allow_html=True)
+
+# Currencies
 currencies = {
     "USD": {"name": "US Dollar", "flag": "🇺🇸", "symbol": "$"},
     "EUR": {"name": "Euro", "flag": "🇪🇺", "symbol": "€"},
@@ -25,7 +98,7 @@ currencies = {
     "BRL": {"name": "Brazilian Real", "flag": "🇧🇷", "symbol": "R$"}
 }
 
-# API to get exchange rates
+# API
 url = "https://open.er-api.com/v6/latest/USD"
 
 try:
@@ -33,33 +106,31 @@ try:
     rates = data["rates"]
     last_update = datetime.fromtimestamp(data["time_last_update_unix"]).strftime('%Y-%m-%d %H:%M:%S')
 
-    st.markdown(f"<p style='text-align:center; color:#566573; font-size:12px;'>Last update: {last_update}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p class='update-time'>Last update: {last_update}</p>", unsafe_allow_html=True)
 
+    # Inputs
     st.markdown("### Enter amount and select currencies")
-
-    # Input columns
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("<h4 style='color:#1F618D;'>From</h4>", unsafe_allow_html=True)
+        st.markdown("**From**")
         from_currency = st.selectbox(
             "From currency",
             [f"{currencies[c]['flag']} {c} - {currencies[c]['name']}" for c in currencies.keys()],
             index=3,
             label_visibility="collapsed"
         )
-        from_currency_code = from_currency.split()[1]  # get currency code
+        from_currency_code = from_currency.split()[1]
         amount = st.number_input(
             f"Amount in {from_currency_code}",
             min_value=0.0,
             step=10.0,
             format="%.2f",
-            key="from_amount",
-            help="Enter the amount to convert"
+            key="from_amount"
         )
 
     with col2:
-        st.markdown("<h4 style='color:#1F618D;'>To</h4>", unsafe_allow_html=True)
+        st.markdown("**To**")
         to_currency = st.selectbox(
             "To currency",
             [f"{currencies[c]['flag']} {c} - {currencies[c]['name']}" for c in currencies.keys()],
@@ -68,49 +139,43 @@ try:
         )
         to_currency_code = to_currency.split()[1]
 
-    # Optional: decimals control
+    # Decimals control
     decimals = st.slider("Decimals", min_value=0, max_value=4, value=2, step=1)
 
-    st.markdown("<br>", unsafe_allow_html=True)  # spacing
+    st.markdown("<br>", unsafe_allow_html=True)
 
+    # Conversion
     if amount > 0:
-        # Convert to USD first, then to target
         usd_amount = amount / rates[from_currency_code]
         result = usd_amount * rates[to_currency_code]
 
-        # Resultado final
         st.markdown(
             f"""
-            <div style='background-color:#EAF2F8; padding:25px; border-radius:12px; text-align:center; border:1px solid #D5D8DC; box-shadow:0 2px 5px rgba(0,0,0,0.05); max-width:350px; margin:auto;'>
-                <h2 style='margin:0; color:#1F618D; font-weight:500;'>= {currencies[to_currency_code]['symbol']}{result:,.{decimals}f} {to_currency_code}</h2>
+            <div class='result-box'>
+                <h2 class='result-value'>= {currencies[to_currency_code]['symbol']}{result:,.{decimals}f} {to_currency_code}</h2>
+                <p class='result-label'>Converted amount</p>
             </div>
-            <p style='text-align:center; color:#566573; margin-top:8px;'>Converted amount</p>
             """,
             unsafe_allow_html=True
         )
 
-        # Tabla de referencia
+        # Reference tables
         steps = [1, 5, 10, 25, 50, 100, 500, 1000]
-        table_html = "<div style='display:flex; justify-content:center; gap:30px; margin-top:20px; flex-wrap:wrap;'>"
+        table_html = "<div class='ref-tables'>"
 
-        # From -> To
-        left_table = "<div style='background:#D6EAF8; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
-        left_table += f"<h4 style='text-align:center; margin-bottom:10px; color:#1F618D;'>{from_currency_code} → {to_currency_code}</h4>"
-        left_table += "<table style='width:100%; border-collapse: collapse;'>"
+        left_table = "<div class='ref-card'>"
+        left_table += f"<h4>{from_currency_code} → {to_currency_code}</h4><table>"
         for s in steps:
-            left_table += f"<tr style='border-bottom:1px solid #AED6F1;'><td style='padding:4px;'>{s} {from_currency_code}</td><td style='padding:4px;'>{(s / rates[from_currency_code] * rates[to_currency_code]):,.{decimals}f} {to_currency_code}</td></tr>"
+            left_table += f"<tr><td>{s} {from_currency_code}</td><td>{(s / rates[from_currency_code] * rates[to_currency_code]):,.{decimals}f} {to_currency_code}</td></tr>"
         left_table += "</table></div>"
 
-        # To -> From
-        right_table = "<div style='background:#D6EAF8; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
-        right_table += f"<h4 style='text-align:center; margin-bottom:10px; color:#1F618D;'>{to_currency_code} → {from_currency_code}</h4>"
-        right_table += "<table style='width:100%; border-collapse: collapse;'>"
+        right_table = "<div class='ref-card'>"
+        right_table += f"<h4>{to_currency_code} → {from_currency_code}</h4><table>"
         for s in steps:
-            right_table += f"<tr style='border-bottom:1px solid #AED6F1;'><td style='padding:4px;'>{s} {to_currency_code}</td><td style='padding:4px;'>{(s / rates[to_currency_code] * rates[from_currency_code]):,.{decimals}f} {from_currency_code}</td></tr>"
+            right_table += f"<tr><td>{s} {to_currency_code}</td><td>{(s / rates[to_currency_code] * rates[from_currency_code]):,.{decimals}f} {from_currency_code}</td></tr>"
         right_table += "</table></div>"
 
         table_html += left_table + right_table + "</div>"
-
         st.markdown(table_html, unsafe_allow_html=True)
 
     st.caption("Rates provided by open.er-api.com")
