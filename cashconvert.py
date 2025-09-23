@@ -31,9 +31,13 @@ url = "https://open.er-api.com/v6/latest/USD"
 try:
     data = requests.get(url).json()
     rates = data["rates"]
-    last_update = datetime.fromtimestamp(data["time_last_update_unix"]).strftime('%Y-%m-%d %H:%M:%S')
+    last_update = datetime.fromtimestamp(
+        data["time_last_update_unix"]).strftime('%Y-%m-%d %H:%M:%S')
 
-    st.markdown(f"<p style='text-align:center; color:#566573; font-size:12px;'>Last update: {last_update}</p>", unsafe_allow_html=True)
+    st.markdown(
+        f"<p style='text-align:center; color:#566573; font-size:12px;'>Last update: {last_update}</p>",
+        unsafe_allow_html=True
+    )
 
     st.markdown("### Enter amount and select currencies")
 
@@ -77,12 +81,16 @@ try:
         usd_amount = amount / rates[from_currency_code]
         result = usd_amount * rates[to_currency_code]
 
-        # Resultado final con color verde fuerte
+        # Resultado final con verde fuerte y negrita
         st.markdown(
             f"""
-            <div style='background-color:#EAF2F8; padding:25px; border-radius:12px; text-align:center; 
-                        border:1px solid #D5D8DC; box-shadow:0 2px 5px rgba(0,0,0,0.05); max-width:350px; margin:auto;'>
-                <h2 style='margin:0; color:#117A65; font-weight:600;'>= {currencies[to_currency_code]['symbol']}{result:,.{decimals}f} {to_currency_code}</h2>
+            <div style='background-color:#EAF2F8; padding:25px; border-radius:12px; 
+                        text-align:center; border:1px solid #D5D8DC; 
+                        box-shadow:0 2px 5px rgba(0,0,0,0.05); 
+                        max-width:350px; margin:auto;'>
+                <h2 style='margin:0; color:#117A65; font-weight:700;'>
+                    = {currencies[to_currency_code]['symbol']}{result:,.{decimals}f} {to_currency_code}
+                </h2>
             </div>
             <p style='text-align:center; color:#566573; margin-top:8px;'>Converted amount</p>
             """,
@@ -98,7 +106,9 @@ try:
         left_table += f"<h4 style='text-align:center; margin-bottom:10px; color:#1F618D;'>{from_currency_code} → {to_currency_code}</h4>"
         left_table += "<table style='width:100%; border-collapse: collapse;'>"
         for s in steps:
-            left_table += f"<tr style='border-bottom:1px solid #AED6F1;'><td style='padding:4px; color:#000;'>{s} {from_currency_code}</td><td style='padding:4px; color:#000;'>{(s / rates[from_currency_code] * rates[to_currency_code]):,.{decimals}f} {to_currency_code}</td></tr>"
+            left_table += f"<tr style='border-bottom:1px solid #AED6F1;'>"
+            left_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{s} {from_currency_code}</td>"
+            left_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{(s / rates[from_currency_code] * rates[to_currency_code]):,.{decimals}f} {to_currency_code}</td></tr>"
         left_table += "</table></div>"
 
         # To -> From
@@ -106,7 +116,9 @@ try:
         right_table += f"<h4 style='text-align:center; margin-bottom:10px; color:#1F618D;'>{to_currency_code} → {from_currency_code}</h4>"
         right_table += "<table style='width:100%; border-collapse: collapse;'>"
         for s in steps:
-            right_table += f"<tr style='border-bottom:1px solid #AED6F1;'><td style='padding:4px; color:#000;'>{s} {to_currency_code}</td><td style='padding:4px; color:#000;'>{(s / rates[to_currency_code] * rates[from_currency_code]):,.{decimals}f} {from_currency_code}</td></tr>"
+            right_table += f"<tr style='border-bottom:1px solid #AED6F1;'>"
+            right_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{s} {to_currency_code}</td>"
+            right_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{(s / rates[to_currency_code] * rates[from_currency_code]):,.{decimals}f} {from_currency_code}</td></tr>"
         right_table += "</table></div>"
 
         table_html += left_table + right_table + "</div>"
