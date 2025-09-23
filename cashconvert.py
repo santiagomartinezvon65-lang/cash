@@ -5,6 +5,18 @@ from datetime import datetime
 # Page setup
 st.set_page_config(page_title="Currency Converter", layout="centered")
 
+# Fondo azul clarito
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #EAF2F8;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Title
 st.markdown(
     """
@@ -72,19 +84,18 @@ try:
         )
         to_currency_code = to_currency.split()[1]
 
-    # Decimals control
     decimals = st.slider("Decimals", min_value=0, max_value=4, value=2, step=1)
 
-    st.markdown("<br>", unsafe_allow_html=True)  # spacing
+    st.markdown("<br>", unsafe_allow_html=True)
 
     if amount > 0:
         usd_amount = amount / rates[from_currency_code]
         result = usd_amount * rates[to_currency_code]
 
-        # Resultado final con verde fuerte y negrita
+        # Resultado final
         st.markdown(
             f"""
-            <div style='background-color:#EAF2F8; padding:25px; border-radius:12px; 
+            <div style='background-color:#FFFFFF; padding:25px; border-radius:12px; 
                         text-align:center; border:1px solid #D5D8DC; 
                         box-shadow:0 2px 5px rgba(0,0,0,0.05); 
                         max-width:350px; margin:auto;'>
@@ -101,22 +112,20 @@ try:
         steps = [1, 5, 10, 25, 50, 100, 500, 1000]
         table_html = "<div style='display:flex; justify-content:center; gap:30px; margin-top:20px; flex-wrap:wrap;'>"
 
-        # From -> To
-        left_table = "<div style='background:#D6EAF8; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
+        left_table = "<div style='background:#FFFFFF; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
         left_table += f"<h4 style='text-align:center; margin-bottom:10px; color:#1F618D;'>{from_currency_code} → {to_currency_code}</h4>"
         left_table += "<table style='width:100%; border-collapse: collapse;'>"
         for s in steps:
-            left_table += f"<tr style='border-bottom:1px solid #AED6F1;'>"
+            left_table += f"<tr style='border-bottom:1px solid #D5D8DC;'>"
             left_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{s} {from_currency_code}</td>"
             left_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{(s / rates[from_currency_code] * rates[to_currency_code]):,.{decimals}f} {to_currency_code}</td></tr>"
         left_table += "</table></div>"
 
-        # To -> From
-        right_table = "<div style='background:#D6EAF8; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
+        right_table = "<div style='background:#FFFFFF; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
         right_table += f"<h4 style='text-align:center; margin-bottom:10px; color:#1F618D;'>{to_currency_code} → {from_currency_code}</h4>"
         right_table += "<table style='width:100%; border-collapse: collapse;'>"
         for s in steps:
-            right_table += f"<tr style='border-bottom:1px solid #AED6F1;'>"
+            right_table += f"<tr style='border-bottom:1px solid #D5D8DC;'>"
             right_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{s} {to_currency_code}</td>"
             right_table += f"<td style='padding:4px; color:#000; font-weight:600;'>{(s / rates[to_currency_code] * rates[from_currency_code]):,.{decimals}f} {from_currency_code}</td></tr>"
         right_table += "</table></div>"
@@ -128,4 +137,5 @@ try:
 
 except Exception as e:
     st.error(f"Error: Could not fetch exchange rates. Try again later. ({e})")
+
 
