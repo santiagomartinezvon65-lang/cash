@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 import pandas as pd
-import plotly.express as px
 from datetime import datetime, timedelta
 
 # --- Configuración de página ---
@@ -17,6 +16,7 @@ currencies = {
     "BRL": {"name": "Brazilian Real", "flag": "🇧🇷", "symbol": "R$"}
 }
 
+# --- Título ---
 st.markdown(
     "<h1 style='text-align:center; color:#1F618D;'>Currency Converter</h1>"
     "<p style='text-align:center; color:#566573;'>Real-time currency conversion</p><br>",
@@ -89,7 +89,7 @@ try:
     table_html += left_table + right_table + "</div>"
     st.markdown(table_html, unsafe_allow_html=True)
 
-    # --- Gráfico histórico 30 días ---
+    # --- Gráfico histórico 30 días usando st.line_chart ---
     st.markdown("### Historical rate (last 30 days)")
 
     end_date = datetime.today()
@@ -104,9 +104,9 @@ try:
         values.append(rates_dict[to_currency_code])
 
     df = pd.DataFrame({"Date": dates, "Rate": values})
+    df.set_index("Date", inplace=True)
 
-    fig = px.line(df, x="Date", y="Rate", title=f"{from_currency_code} → {to_currency_code} Last 30 Days", markers=True)
-    st.plotly_chart(fig, use_container_width=True)
+    st.line_chart(df["Rate"])
 
 except Exception as e:
     st.error(f"Error: Could not fetch exchange rates. Try again later. ({e})")
