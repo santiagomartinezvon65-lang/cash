@@ -1,19 +1,17 @@
 import streamlit as st
 import requests
-import pandas as pd
-from datetime import datetime, timedelta
 
 # --- Configuración de página ---
-st.set_page_config(page_title="Currency Converter + Chart", layout="centered")
+st.set_page_config(page_title="Currency Converter", layout="centered")
 
 # --- Monedas con emoji y símbolo ---
 currencies = {
-    "USD": {"name": "US Dollar", "flag": "🇺🇸", "symbol": "$", "fallback": 1.0},
-    "EUR": {"name": "Euro", "flag": "🇪🇺", "symbol": "€", "fallback": 0.93},
-    "GBP": {"name": "British Pound", "flag": "🇬🇧", "symbol": "£", "fallback": 0.81},
-    "ARS": {"name": "Argentine Peso", "flag": "🇦🇷", "symbol": "$", "fallback": 140.0},
-    "JPY": {"name": "Japanese Yen", "flag": "🇯🇵", "symbol": "¥", "fallback": 148.0},
-    "BRL": {"name": "Brazilian Real", "flag": "🇧🇷", "symbol": "R$", "fallback": 4.8}
+    "USD": {"name": "US Dollar", "flag": "🇺🇸", "symbol": "$"},
+    "EUR": {"name": "Euro", "flag": "🇪🇺", "symbol": "€"},
+    "GBP": {"name": "British Pound", "flag": "🇬🇧", "symbol": "£"},
+    "ARS": {"name": "Argentine Peso", "flag": "🇦🇷", "symbol": "$"},
+    "JPY": {"name": "Japanese Yen", "flag": "🇯🇵", "symbol": "¥"},
+    "BRL": {"name": "Brazilian Real", "flag": "🇧🇷", "symbol": "R$"}
 }
 
 # --- Título ---
@@ -51,15 +49,8 @@ decimals = st.slider("Decimals", 0, 4, 2)
 # --- Obtener tasa actual ---
 try:
     url = f"https://api.exchangerate.host/latest?base={from_currency_code}&symbols={to_currency_code}"
-    res = requests.get(url, timeout=5).json()
-    
-    # Validación de API
-    if res.get("success") == False or "rates" not in res:
-        st.warning("API no respondió correctamente, usando valores de respaldo.")
-        rate = currencies[to_currency_code]["fallback"] / currencies[from_currency_code]["fallback"]
-    else:
-        rate = res["rates"].get(to_currency_code, currencies[to_currency_code]["fallback"] / currencies[from_currency_code]["fallback"])
-    
+    res = requests.get(url).json()
+    rate = res["rates"][to_currency_code]
     result = amount * rate
 
     # --- Caja resultado final ---
@@ -96,35 +87,7 @@ try:
     table_html += left_table + right_table + "</div>"
     st.markdown(table_html, unsafe_allow_html=True)
 
-    # --- Gráfico histórico 30 días ---
-    st.markdown("### Historical rate (last 30 days)")
-
-    try:
-        end_date = datetime.today()
-        start_date = end_date - timedelta(days=30)
-        hist_url = f"https://api.exchangerate.host/timeseries?start_date={start_date.date()}&end_date={end_date.date()}&base={from_currency_code}&symbols={to_currency_code}"
-        hist_data = requests.get(hist_url, timeout=5).json()
-        
-        # Fallback en caso de fallo
-        if hist_data.get("success") == False or "rates" not in hist_data:
-            st.warning("No se pudo obtener histórico, usando línea plana de fallback.")
-            df_hist = pd.DataFrame({"Date": pd.date_range(start=start_date, end=end_date), 
-                                    "Rate": [rate]*31})
-        else:
-            dates = []
-            values = []
-            for date, rates_dict in hist_data["rates"].items():
-                dates.append(datetime.strptime(date, "%Y-%m-%d"))
-                values.append(rates_dict.get(to_currency_code, rate))
-            df_hist = pd.DataFrame({"Date": dates, "Rate": values})
-        
-        df_hist.set_index("Date", inplace=True)
-        st.line_chart(df_hist["Rate"])
-        
-    except:
-        st.warning("No se pudo generar el gráfico histórico.")
-
 except Exception as e:
-    st.error(f"Error inesperado: {e}")
+    st.error(f"Error: Could not fetch exchange rates. Try again later. ({e})")
 
 
