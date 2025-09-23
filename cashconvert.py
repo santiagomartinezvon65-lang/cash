@@ -81,4 +81,3 @@ try:
 
 except Exception:
     st.error("Error: Could not fetch exchange rates. Try again later.")
-
