@@ -5,7 +5,7 @@ from datetime import datetime
 # Page setup
 st.set_page_config(page_title="Currency Converter", layout="centered")
 
-# Custom CSS
+# Custom CSS (responsive)
 st.markdown("""
     <style>
         body {
@@ -15,6 +15,7 @@ st.markdown("""
             text-align: center;
             color: #1F618D;
             margin-bottom: 0;
+            font-size: 32px;
         }
         .subtitle {
             text-align: center;
@@ -31,7 +32,7 @@ st.markdown("""
         }
         .result-box {
             background-color: #EAF2F8;
-            padding: 25px;
+            padding: 20px;
             border-radius: 14px;
             text-align: center;
             border: 1px solid #D5D8DC;
@@ -43,19 +44,19 @@ st.markdown("""
             color: #1F618D;
             font-weight: 600;
             margin: 0;
-            font-size: 28px;
+            font-size: 24px;
         }
         .result-label {
             text-align: center;
             color: #566573;
-            margin-top: 8px;
+            margin-top: 6px;
             font-size: 14px;
         }
         .ref-tables {
             display: flex;
             justify-content: center;
-            gap: 30px;
-            margin-top: 25px;
+            gap: 20px;
+            margin-top: 20px;
             flex-wrap: wrap;
         }
         .ref-card {
@@ -63,12 +64,15 @@ st.markdown("""
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            min-width: 220px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 15px;
         }
         .ref-card h4 {
             text-align: center;
             margin-bottom: 10px;
             color: #1F618D;
+            font-size: 15px;
         }
         .ref-card table {
             width: 100%;
@@ -80,6 +84,21 @@ st.markdown("""
         }
         .ref-card tr {
             border-bottom: 1px solid #AED6F1;
+        }
+        /* Responsive tweaks */
+        @media (max-width: 600px) {
+            .main-title {
+                font-size: 26px;
+            }
+            .subtitle {
+                font-size: 14px;
+            }
+            .result-value {
+                font-size: 20px;
+            }
+            .ref-card {
+                max-width: 100%;
+            }
         }
     </style>
 """, unsafe_allow_html=True)
@@ -142,8 +161,6 @@ try:
     # Decimals control
     decimals = st.slider("Decimals", min_value=0, max_value=4, value=2, step=1)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
     # Conversion
     if amount > 0:
         usd_amount = amount / rates[from_currency_code]
@@ -182,4 +199,5 @@ try:
 
 except Exception as e:
     st.error(f"Error: Could not fetch exchange rates. Try again later. ({e})")
+
 
