@@ -32,3 +32,6 @@ A **real-time currency converter** built with **Python and Streamlit**, featurin
    ```bash
    git clone https://github.com/santiagomartinezvon65-lang/currency-converter.git
    cd currency-converter
+   pip install streamlit requests
+   streamlit run cashconvert.py
+   ```
