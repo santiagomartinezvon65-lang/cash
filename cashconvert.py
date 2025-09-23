@@ -32,7 +32,7 @@ st.markdown(
 # -----------------------------
 st.markdown(
     """
-    <h1 style='text-align: center; color: #1F618D;'>💱 Currency Converter</h1>
+    <h1 style='text-align: center; color: #1F618D;'> Currency Converter</h1>
     <p style='text-align: center; color: #566573; font-size:16px;'>Real-time currency conversion</p>
     <br>
     """,
@@ -179,4 +179,5 @@ try:
 
 except Exception as e:
     st.error(f"Error: Could not fetch exchange rates. Try again later. ({e})")
+
 
