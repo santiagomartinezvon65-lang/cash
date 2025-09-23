@@ -57,39 +57,18 @@ try:
         usd_amount = amount / rates[from_currency]
         result = usd_amount * rates[to_currency]
 
-        # Mostrar ambas cajas al lado
-        col_amount, col_result = st.columns(2)
+        # Solo la caja del resultado
+        st.markdown(
+            f"""
+            <div style='background-color:#EAF2F8; padding:25px; border-radius:12px; text-align:center; border:1px solid #D5D8DC; box-shadow:0 2px 5px rgba(0,0,0,0.05); max-width:300px; margin:auto;'>
+                <h2 style='margin:0; color:#1F618D; font-weight:500;'>= {result:,.2f} {to_currency}</h2>
+            </div>
+            <p style='text-align:center; color:#566573; margin-top:8px;'>Converted amount</p>
+            """,
+            unsafe_allow_html=True
+        )
 
-        box_style = """
-        background-color:#EAF2F8; 
-        padding:20px; 
-        border-radius:12px; 
-        text-align:center; 
-        border:1px solid #D5D8DC; 
-        box-shadow:0 2px 5px rgba(0,0,0,0.05);
-        """
-
-        with col_amount:
-            st.markdown(
-                f"""
-                <div style='{box_style}'>
-                    <h3 style='margin:0; color:#1F618D; font-weight:500;'>{amount:,.2f} {from_currency}</h3>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with col_result:
-            st.markdown(
-                f"""
-                <div style='{box_style}'>
-                    <h3 style='margin:0; color:#1F618D; font-weight:500;'>= {result:,.2f} {to_currency}</h3>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        # Tabla de referencia
+        # Tabla de referencia (opcional)
         steps = [1, 5, 10, 25, 50, 100, 500, 1000]
         table_html = "<div style='display:flex; justify-content:center; gap:30px; margin-top:20px; flex-wrap:wrap;'>"
 
