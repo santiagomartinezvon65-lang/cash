@@ -33,9 +33,9 @@ try:
 
     st.markdown("### Enter amount and select currencies")
 
+    # Input columns
     col1, col2 = st.columns(2)
 
-    # Input: From
     with col1:
         st.markdown("<h4 style='color:#1C2833;'>From</h4>", unsafe_allow_html=True)
         from_currency = st.selectbox("From currency", list(currencies.keys()), index=3, label_visibility="collapsed")
@@ -46,7 +46,6 @@ try:
             help="Enter the amount to convert"
         )
 
-    # Input: To
     with col2:
         st.markdown("<h4 style='color:#1C2833;'>To</h4>", unsafe_allow_html=True)
         to_currency = st.selectbox("To currency", list(currencies.keys()), index=0, label_visibility="collapsed")
@@ -58,7 +57,7 @@ try:
         usd_amount = amount / rates[from_currency]
         result = usd_amount * rates[to_currency]
 
-        # Mostrar ambas cajas al lado (2 columnas iguales)
+        # Mostrar ambas cajas al lado
         col_amount, col_result = st.columns(2)
 
         with col_amount:
@@ -80,6 +79,30 @@ try:
                 """,
                 unsafe_allow_html=True
             )
+
+        # Tabla de referencia
+        steps = [1, 5, 10, 25, 50, 100, 500, 1000]
+        table_html = "<div style='display:flex; justify-content:center; gap:30px; margin-top:20px; flex-wrap:wrap;'>"
+
+        # From -> To
+        left_table = "<div style='background:white; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
+        left_table += f"<h4 style='text-align:center; margin-bottom:10px;'>{from_currency} → {to_currency}</h4>"
+        left_table += "<table style='width:100%; border-collapse: collapse;'>"
+        for s in steps:
+            left_table += f"<tr style='border-bottom:1px solid #ddd;'><td style='padding:4px;'>{s} {from_currency}</td><td style='padding:4px;'>{(s / rates[from_currency] * rates[to_currency]):,.2f} {to_currency}</td></tr>"
+        left_table += "</table></div>"
+
+        # To -> From
+        right_table = "<div style='background:white; border-radius:12px; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);'>"
+        right_table += f"<h4 style='text-align:center; margin-bottom:10px;'>{to_currency} → {from_currency}</h4>"
+        right_table += "<table style='width:100%; border-collapse: collapse;'>"
+        for s in steps:
+            right_table += f"<tr style='border-bottom:1px solid #ddd;'><td style='padding:4px;'>{s} {to_currency}</td><td style='padding:4px;'>{(s / rates[to_currency] * rates[from_currency]):,.2f} {from_currency}</td></tr>"
+        right_table += "</table></div>"
+
+        table_html += left_table + right_table + "</div>"
+
+        st.markdown(table_html, unsafe_allow_html=True)
 
     st.caption("Rates provided by open.er-api.com")
 
