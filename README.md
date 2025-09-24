@@ -1,10 +1,10 @@
-# 💱 Currency Converter
+#  Currency Converter
 
 A **real-time currency converter** built with **Python and Streamlit**, featuring a clean, professional design, responsive layout, and interactive features.
 
 ---
 
-## 🌐 Features
+##  Features
 
 - Convert between **USD, EUR, GBP, ARS, JPY, BRL** with real-time exchange rates.
 - Modern **responsive design** that works well on **desktop and mobile**.
@@ -16,7 +16,7 @@ A **real-time currency converter** built with **Python and Streamlit**, featurin
 
 ---
 
-## 🎨 Design
+##  Design
 
 - Background: light blue (#EAF2F8) for a clean look.
 - Cards: white with subtle shadows for results and tables.
@@ -26,7 +26,7 @@ A **real-time currency converter** built with **Python and Streamlit**, featurin
 
 ---
 
-## ⚙️ Installation
+##  Installation
 
 1. Clone this repository:
    ```bash
